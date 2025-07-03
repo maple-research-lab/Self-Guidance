@@ -1,0 +1,88 @@
+import os
+import torch
+from accelerate import Accelerator
+from tqdm import tqdm
+import click 
+import yaml
+import dnnlib
+import json
+
+def CommandWithConfigFile(config_file_param_name):
+
+    class CustomCommandClass(click.Command):
+
+        def invoke(self, ctx):
+            config_file = ctx.params[config_file_param_name]
+            if config_file is not None:
+                with open(config_file) as f:
+                    config_data = yaml.load(f, Loader=yaml.FullLoader)
+                    for key, value in config_data.items():
+                        ctx.params[key] = value
+            return super(CustomCommandClass, self).invoke(ctx)
+
+    return CustomCommandClass
+
+def save_image(image, path, idx, style):
+    save_path = os.path.join(path, style)
+    os.makedirs(save_path, exist_ok=True)
+    image.save(os.path.join(save_path, f"{idx:05d}.jpg"))
+
+@click.command(cls=CommandWithConfigFile("config"))
+@click.option("--config", type=str, default="config/flux.yaml")
+@click.option('--local_data_path', type=str, default="hps")
+@click.option('--output', type=str, default="runs/flux/coco")
+@click.option('--seed', type=int, default=0)
+
+def main(
+    config,
+    local_data_path,
+    output,
+    seed,
+    **kwargs,
+):
+    accelerator = Accelerator()
+    device = accelerator.device
+
+    network_kwargs = kwargs.pop("network_kwargs")
+    pipe = dnnlib.util.construct_class_by_name(**network_kwargs)
+    pipe.to(dtype=torch.bfloat16, device=device)
+
+    # 读取 prompts
+    dimension_list = ['anime', 'concept-art','paintings','photo']
+
+    infer_kwargs = kwargs.pop("infer_kwargs")
+    print("Using these configs:", infer_kwargs)
+    output = os.path.join(output, f"cfg{infer_kwargs['cfg_scale']}-pag{infer_kwargs['pag_scale']}-sg{infer_kwargs['sg_scale']}_{infer_kwargs['sg_shift_scale']}_{infer_kwargs['sg_type']}_{infer_kwargs['sg_prev_max_t']}")
+    os.makedirs(output, exist_ok=True)
+
+    for dimension in dimension_list:
+        with open(f'{local_data_path}/{dimension}.json', 'r', encoding='utf-8') as f:
+            all_prompts = json.load(f)
+        
+        world_size = accelerator.num_processes
+        rank = accelerator.process_index
+
+        # 分配 prompt
+        prompts_split = all_prompts[rank::world_size]
+        with torch.no_grad():
+
+            for local_idx, prompt in enumerate(tqdm(prompts_split, disable=not accelerator.is_local_main_process)):
+                image = pipe(
+                    prompt,
+                    guidance_scale=infer_kwargs['cfg_scale'],
+                    pag_scale=infer_kwargs['pag_scale'],
+                    generator=torch.manual_seed(seed),
+                    self_guidance_scale=infer_kwargs['sg_scale'],
+                    self_guidance_shift_t=infer_kwargs['sg_shift_scale'],
+                    self_guidance_type=infer_kwargs['sg_type'],
+                    sg_prev_max_t=infer_kwargs['sg_prev_max_t'],
+                ).images[0]
+
+                global_idx = rank + local_idx * world_size
+                save_image(image, output, global_idx, dimension)
+
+if __name__ == "__main__":
+    main()
+
+            
+            

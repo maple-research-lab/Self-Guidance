@@ -1,0 +1,14 @@
+desc: sd3
+
+network_kwargs: 
+    class_name: models.stable_diffusion_3.pipeline_sd_3.StableDiffusion3SGPAGPipeline.from_pretrained
+    pretrained_model_name_or_path: /storage/qiguojunLab/qiguojun/home/Models/stabilityai/stable-diffusion-3-medium-diffusers
+    pag_applied_layers: ["blocks.13"]
+
+infer_kwargs:
+    cfg_scale: 7.5              # CFG guidance scale
+    pag_scale: 0.7              # PAG guidance scale
+    sg_scale: 3                 # SG guidance scale
+    sg_shift_scale: 10          # SG shift scale
+    sg_type: sg_prev            # SG / SG_prev
+    sg_prev_max_t: 500          # for t < sg_prev_max_t, we use sg_prev
