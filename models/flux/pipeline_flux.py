@@ -118,7 +118,7 @@ class FluxSGPipeline(FluxPipeline):
         self_guidance_scale: float = 3.0,
         self_guidance_shift_t: Union[int, List[int]] = 10,
         self_guidance_type: str = "normal",
-        sg_prev_max_t: int = 500,
+        sg_prev_max_t: float = 500,
     ):
         r"""
         Function invoked when calling the pipeline for generation.

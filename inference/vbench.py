@@ -39,8 +39,9 @@ def main(
     device = accelerator.device
 
     network_kwargs = kwargs.pop("network_kwargs")
+    network_kwargs['torch_dtype'] = torch.float16 if network_kwargs['torch_dtype'] == "float16" else torch.bfloat16
     pipe = dnnlib.util.construct_class_by_name(**network_kwargs)
-    pipe.to(dtype=torch.bfloat16, device=device)
+    pipe.to(device=device)
 
     dimension_list = ['human_action', 'scene','multiple_objects','appearance_style','overall_consistency']
     
@@ -69,21 +70,21 @@ def main(
                     save_file = os.path.join(cur_save_path, f"{prompt}-{number}.mp4")
                     if os.path.exists(save_file):
                         continue
-                result = pipe(
-                    prompt,
-                    num_inference_steps=50,
-                    height=480,
-                    width=720,
-                    guidance_scale=infer_kwargs['cfg_scale'],
-                    pag_scale=infer_kwargs['pag_scale'],
-                    generator=torch.manual_seed(seed),
-                    self_guidance_scale=infer_kwargs['sg_scale'],
-                    self_guidance_shift_t=infer_kwargs['sg_shift_scale'],
-                    self_guidance_type=infer_kwargs['sg_type'],
-                    sg_prev_max_t=infer_kwargs['sg_prev_max_t'],
-                )
-                video = result.frames[0]
-                export_to_video(video, save_file, fps=8)
+                    result = pipe(
+                        prompt,
+                        num_inference_steps=50,
+                        height=480,
+                        width=720,
+                        guidance_scale=infer_kwargs['cfg_scale'],
+                        pag_scale=infer_kwargs['pag_scale'],
+                        generator=torch.manual_seed(number),
+                        self_guidance_scale=infer_kwargs['sg_scale'],
+                        self_guidance_shift_t=infer_kwargs['sg_shift_scale'],
+                        self_guidance_type=infer_kwargs['sg_type'],
+                        sg_prev_max_t=infer_kwargs['sg_prev_max_t'],
+                    )
+                    video = result.frames[0]
+                    export_to_video(video, save_file, fps=8)
 
 if __name__ == "__main__":
     main()

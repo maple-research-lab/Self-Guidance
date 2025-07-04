@@ -4,6 +4,7 @@ network_kwargs:
     class_name: models.stable_diffusion_3.pipeline_sd_3.StableDiffusion3SGPAGPipeline.from_pretrained
     pretrained_model_name_or_path: /storage/qiguojunLab/qiguojun/home/Models/stabilityai/stable-diffusion-3-medium-diffusers
     pag_applied_layers: ["blocks.13"]
+    torch_dtype: float16
 
 infer_kwargs:
     cfg_scale: 7.5              # CFG guidance scale

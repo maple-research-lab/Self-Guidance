@@ -5,6 +5,7 @@ from tqdm import tqdm
 import click 
 import yaml
 import dnnlib
+from diffusers import EulerDiscreteScheduler
 
 def CommandWithConfigFile(config_file_param_name):
 
@@ -38,8 +39,9 @@ def main(
     device = accelerator.device
 
     network_kwargs = kwargs.pop("network_kwargs")
+    network_kwargs['torch_dtype'] = torch.float16 if network_kwargs['torch_dtype'] == "float16" else torch.bfloat16
     pipe = dnnlib.util.construct_class_by_name(**network_kwargs)
-    pipe.to(dtype=torch.bfloat16, device=device)
+    pipe.to(device=device)
 
     # 读取 prompts
     with open(local_data_path, 'r', encoding='utf-8') as f:
@@ -52,6 +54,11 @@ def main(
 
     infer_kwargs = kwargs.pop("infer_kwargs")
     print("Using these configs:", infer_kwargs)
+
+    scheduler_type = infer_kwargs.pop("scheduler_type", None)
+    if scheduler_type == "euler":
+        pipe.scheduler = EulerDiscreteScheduler.from_config(pipe.scheduler.config)
+        
     output = os.path.join(output, f"cfg{infer_kwargs['cfg_scale']}-pag{infer_kwargs['pag_scale']}-sg{infer_kwargs['sg_scale']}_{infer_kwargs['sg_shift_scale']}_{infer_kwargs['sg_type']}_{infer_kwargs['sg_prev_max_t']}")
     os.makedirs(output, exist_ok=True)
 

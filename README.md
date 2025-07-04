@@ -34,6 +34,8 @@ Conpared to existing diffusion guidance strategy, SG has multiple advantages:
 
 ## Getting Started
 
+You can try a demo in `demo.ipynb`.
+
 ### Installation
 ```python
 git clone https://github.com/maple-research-lab/Self-Guidance.git

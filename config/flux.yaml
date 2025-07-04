@@ -3,11 +3,11 @@ desc: Flux
 network_kwargs: 
     class_name: models.flux.pipeline_flux.FluxSGPipeline.from_pretrained
     pretrained_model_name_or_path: /storage/qiguojunLab/qiguojun/home/Models/FLUX.1-dev/
-
+    torch_dtype: bfloat16
 infer_kwargs:
     cfg_scale: 3.5              # CFG guidance scale
     pag_scale: 0                # Cogvideox doesn't use PAG
-    sg_scale: 1                 # SG guidance scale
+    sg_scale: 3                 # SG guidance scale
     sg_shift_scale: 10          # SG shift scale
-    sg_type: sg            # SG / SG_prev
+    sg_type: sg_prev            # SG / SG_prev
     sg_prev_max_t: 500          # for t < sg_prev_max_t, we use sg_prev
