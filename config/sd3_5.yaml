@@ -2,7 +2,7 @@ desc: sd3_5
 
 network_kwargs: 
     class_name: models.stable_diffusion_3.pipeline_sd_3.StableDiffusion3SGPAGPipeline.from_pretrained
-    pretrained_model_name_or_path: /storage/qiguojunLab/qiguojun/home/Models/stabilityai/stable-diffusion-3.5-large
+    pretrained_model_name_or_path: stabilityai/stable-diffusion-3.5-large
     torch_dtype: bfloat16
 infer_kwargs:
     cfg_scale: 3.5              # CFG guidance scale

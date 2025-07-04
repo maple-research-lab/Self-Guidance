@@ -1,0 +1,14 @@
+accelerate
+click
+diffusers
+numpy
+Pillow
+pytorch_lightning
+PyYAML
+requests
+setuptools
+torch
+tqdm
+T2IBenchmark
+clip
+hpsv2

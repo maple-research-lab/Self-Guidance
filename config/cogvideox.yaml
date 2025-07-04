@@ -2,7 +2,7 @@ desc: Flux
 
 network_kwargs: 
     class_name: models.cogvideox.pipeline_cogvideox.CogVideoXSGPipeline.from_pretrained
-    pretrained_model_name_or_path: /storage/qiguojunLab/litiancheng/models/CogVideox-5B
+    pretrained_model_name_or_path: THUDM/CogVideoX-5b
     torch_dtype: bfloat16
 infer_kwargs:
     n_samples: 5                # number of generated videos for one prompt

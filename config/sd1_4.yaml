@@ -2,7 +2,7 @@ desc: sd1_4
 
 network_kwargs: 
     class_name: models.stable_diffusion.pipeline_sd.StableDiffusionSGPAGPipeline.from_pretrained
-    pretrained_model_name_or_path: /storage/qiguojunLab/litiancheng/models/stable-diffusion-v1-4
+    pretrained_model_name_or_path: CompVis/stable-diffusion-v1-4
     torch_dtype: float16
 
 infer_kwargs:
